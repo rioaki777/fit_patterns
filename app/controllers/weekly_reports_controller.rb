@@ -15,6 +15,10 @@ class WeeklyReportsController < ApplicationController
   end
 
   def create
+    # Policy Object で認可チェック
+    policy = WeeklyReportPolicy.new(current_user, nil)
+    return redirect_to root_path, alert: "権限がありません" unless policy.create?
+
     period_start = Date.parse(params[:period_start].to_s) rescue nil
     period_end   = Date.parse(params[:period_end].to_s) rescue nil
     channel      = params[:notification_channel].presence || "email"
@@ -110,8 +114,8 @@ class WeeklyReportsController < ApplicationController
   end
 
   def authorize_resource!
-    unless @report.user_id == current_user.id
-      redirect_to root_path, alert: "権限がありません"
-    end
+    # Policy Object に認可ロジックを委譲
+    policy = WeeklyReportPolicy.new(current_user, @report)
+    redirect_to root_path, alert: "権限がありません" unless policy.show?
   end
 end

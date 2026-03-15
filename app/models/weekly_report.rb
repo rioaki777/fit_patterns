@@ -8,16 +8,28 @@ class WeeklyReport < ApplicationRecord
   scope :recently_modified, -> { order(updated_at: :desc).limit(10) }
   scope :created_this_week, -> { where(created_at: 1.week.ago..) }
 
+  def avg_weight
+    BodyWeight.new(avg_weight_g) if avg_weight_g
+  end
+
+  def avg_body_fat
+    BodyFatRate.new(avg_body_fat_bp) if avg_body_fat_bp
+  end
+
+  def total_cal
+    Calories.new(total_calories_kcal) if total_calories_kcal
+  end
+
   def formatted_weight
-    avg_weight_g ? "#{avg_weight_g / 1000.0} kg" : "データなし"
+    avg_weight&.formatted || "データなし"
   end
 
   def formatted_fat
-    avg_body_fat_bp ? "#{avg_body_fat_bp / 100.0}%" : "データなし"
+    avg_body_fat&.formatted || "データなし"
   end
 
   def formatted_calories
-    total_calories_kcal ? "#{total_calories_kcal} kcal" : "データなし"
+    total_cal&.formatted || "データなし"
   end
 
   def notification_label

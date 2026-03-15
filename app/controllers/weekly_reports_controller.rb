@@ -39,12 +39,13 @@ class WeeklyReportsController < ApplicationController
       return
     end
 
-    # インライン クエリ
+    # Period Value Object を使ってクエリ
+    period = Period.new(start_date: period_start, end_date: period_end)
     weight_entries = WeightEntry.where(user: current_user)
-                                .where(recorded_on: period_start..period_end)
+                                .where(recorded_on: period.to_range)
                                 .order(recorded_on: :asc)
     workouts = Workout.where(user: current_user)
-                      .where(recorded_on: period_start..period_end)
+                      .where(recorded_on: period.to_range)
                       .order(recorded_on: :asc)
 
     # インライン 集計

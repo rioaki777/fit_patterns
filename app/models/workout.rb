@@ -1,4 +1,6 @@
 class Workout < ApplicationRecord
+  include Trackable
+
   belongs_to :user
 
   validates :recorded_on, presence: true
@@ -15,8 +17,6 @@ class Workout < ApplicationRecord
 
   scope :recent, -> { order(recorded_on: :desc) }
   scope :between_dates, ->(from, to) { where(recorded_on: from..to) }
-  scope :recently_modified, -> { order(updated_at: :desc).limit(10) }
-  scope :created_this_week, -> { where(created_at: 1.week.ago..) }
 
   private
 

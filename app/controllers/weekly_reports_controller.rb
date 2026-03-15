@@ -79,15 +79,8 @@ class WeeklyReportsController < ApplicationController
       payload:   { period_start:, period_end:, notified_at: nil }
     )
 
-    # インライン 同期通知
-    case channel
-    when "email"
-      WeeklyReportMailer.report_ready(@report).deliver_now
-    when "slack"
-      Rails.logger.info "[Slack] Weekly report ready: #{@report.id}"
-    end
-
-    @report.update!(notified_at: Time.current)
+    # ActiveJob で非同期通知 (HTTPレスポンスをブロックしない)
+    SendWeeklyReportJob.perform_later(@report.id, channel)
 
     redirect_to weekly_report_path(@report), notice: "レポートを生成しました"
   rescue ActiveRecord::RecordInvalid => e

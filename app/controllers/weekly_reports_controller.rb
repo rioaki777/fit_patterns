@@ -24,15 +24,9 @@ class WeeklyReportsController < ApplicationController
     @notification_channel = channel
     @errors = []
 
-    # インライン バリデーション
+    # 日付の存在チェックのみ (期間の妥当性は SafePeriodValidator がモデルで検証)
     @errors << "開始日を入力してください" if period_start.nil?
     @errors << "終了日を入力してください" if period_end.nil?
-
-    if period_start && period_end
-      @errors << "開始日は終了日より前の日付を指定してください" if period_start > period_end
-      @errors << "終了日は未来日を指定できません" if period_end > Date.current
-      @errors << "期間は31日以内にしてください" if (period_end - period_start).to_i >= 31
-    end
 
     if @errors.any?
       render :new, status: :unprocessable_entity
@@ -60,7 +54,7 @@ class WeeklyReportsController < ApplicationController
     total_calories_kcal = workouts.sum(:calories_kcal)
     total_workout_min   = workouts.sum(:duration_min)
 
-    # 保存
+    # SafePeriodValidator がモデル保存時に期間バリデーションを実行
     @report = WeeklyReport.create!(
       user:               current_user,
       period_start:,

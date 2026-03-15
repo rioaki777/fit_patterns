@@ -24,7 +24,6 @@ class WeeklyReportsController < ApplicationController
     @notification_channel = channel
     @errors = []
 
-    # インライン バリデーション
     @errors << "開始日を入力してください" if period_start.nil?
     @errors << "終了日を入力してください" if period_end.nil?
 
@@ -39,7 +38,6 @@ class WeeklyReportsController < ApplicationController
       return
     end
 
-    # インライン クエリ
     weight_entries = WeightEntry.where(user: current_user)
                                 .where(recorded_on: period_start..period_end)
                                 .order(recorded_on: :asc)
@@ -47,7 +45,6 @@ class WeeklyReportsController < ApplicationController
                       .where(recorded_on: period_start..period_end)
                       .order(recorded_on: :asc)
 
-    # インライン 集計
     avg_weight_g = if weight_entries.any?
       (weight_entries.sum(:weight_g) / weight_entries.count.to_f).round
     end
@@ -60,7 +57,7 @@ class WeeklyReportsController < ApplicationController
     total_calories_kcal = workouts.sum(:calories_kcal)
     total_workout_min   = workouts.sum(:duration_min)
 
-    # 保存
+    # after_commit コールバックが監査ログを自動記録
     @report = WeeklyReport.create!(
       user:               current_user,
       period_start:,
@@ -71,15 +68,6 @@ class WeeklyReportsController < ApplicationController
       total_workout_min:
     )
 
-    # 手動 監査ログ
-    AuditLog.create!(
-      auditable: @report,
-      event:     "weekly_report_created",
-      user_id:   current_user.id,
-      payload:   { period_start:, period_end:, notified_at: nil }
-    )
-
-    # インライン 同期通知
     case channel
     when "email"
       WeeklyReportMailer.report_ready(@report).deliver_now

@@ -8,6 +8,8 @@ class WeeklyReport < ApplicationRecord
   scope :recently_modified, -> { order(updated_at: :desc).limit(10) }
   scope :created_this_week, -> { where(created_at: 1.week.ago..) }
 
+  after_commit :write_audit_log, on: [:create, :update]
+
   def formatted_weight
     avg_weight_g ? "#{avg_weight_g / 1000.0} kg" : "データなし"
   end
@@ -26,5 +28,16 @@ class WeeklyReport < ApplicationRecord
 
   def formatted_period
     "#{period_start} 〜 #{period_end}"
+  end
+
+  private
+
+  def write_audit_log
+    AuditLog.create!(
+      auditable: self,
+      event: "weekly_report_#{saved_change_to_id? ? 'created' : 'updated'}",
+      user_id: user_id,
+      payload: { period_start:, period_end:, notified_at: }
+    )
   end
 end

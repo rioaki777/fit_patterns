@@ -1,0 +1,52 @@
+<%= form_with(model: workout) do |form| %>
+  <% if workout.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(workout.errors.count, "error") %> prohibited this workout from being saved:</h2>
+
+      <ul>
+        <% workout.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :recorded_on, style: "display: block" %>
+    <%= form.date_field :recorded_on %>
+  </div>
+
+  <div>
+    <%= form.label :kind, style: "display: block" %>
+    <%= form.text_field :kind %>
+  </div>
+
+  <div>
+    <%= form.label :duration_min, style: "display: block" %>
+    <%= form.number_field :duration_min %>
+  </div>
+
+  <div>
+    <%= form.label :calories_kcal, style: "display: block" %>
+    <%= form.number_field :calories_kcal %>
+  </div>
+
+  <div>
+    <%= form.label :intensity, style: "display: block" %>
+    <%= form.number_field :intensity %>
+  </div>
+
+  <div>
+    <%= form.label :note, style: "display: block" %>
+    <%= form.textarea :note %>
+  </div>
+
+  <div>
+    <%= form.label :user_id, style: "display: block" %>
+    <%= form.text_field :user_id %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

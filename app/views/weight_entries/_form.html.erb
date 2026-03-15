@@ -1,0 +1,42 @@
+<%= form_with(model: weight_entry) do |form| %>
+  <% if weight_entry.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(weight_entry.errors.count, "error") %> prohibited this weight_entry from being saved:</h2>
+
+      <ul>
+        <% weight_entry.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :recorded_on, style: "display: block" %>
+    <%= form.date_field :recorded_on %>
+  </div>
+
+  <div>
+    <%= form.label :weight_g, style: "display: block" %>
+    <%= form.number_field :weight_g %>
+  </div>
+
+  <div>
+    <%= form.label :body_fat_bp, style: "display: block" %>
+    <%= form.number_field :body_fat_bp %>
+  </div>
+
+  <div>
+    <%= form.label :note, style: "display: block" %>
+    <%= form.textarea :note %>
+  </div>
+
+  <div>
+    <%= form.label :user_id, style: "display: block" %>
+    <%= form.text_field :user_id %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

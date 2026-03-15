@@ -1,0 +1,17 @@
+<h1>週次レポート一覧</h1>
+
+<%= link_to "新しいレポートを生成", new_weekly_report_path, class: "button" %>
+
+<% if @reports.empty? %>
+  <p>レポートがまだありません。</p>
+<% else %>
+  <ul>
+    <% @reports.each do |report| %>
+      <% presenter = WeeklyReportPresenter.new(report) %>
+      <li>
+        <%= link_to presenter.formatted_period, weekly_report_path(report) %>
+        <span><%= presenter.notification_label %></span>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

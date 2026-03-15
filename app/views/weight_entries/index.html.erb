@@ -1,0 +1,16 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Weight entries" %>
+
+<h1>Weight entries</h1>
+
+<div id="weight_entries">
+  <% @weight_entries.each do |weight_entry| %>
+    <%= render weight_entry %>
+    <p>
+      <%= link_to "Show this weight entry", weight_entry %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New weight entry", new_weight_entry_path %>

@@ -1,0 +1,12 @@
+<% content_for :title, "Editing weight entry" %>
+
+<h1>Editing weight entry</h1>
+
+<%= render "form", weight_entry: @weight_entry %>
+
+<br>
+
+<div>
+  <%= link_to "Show this weight entry", @weight_entry %> |
+  <%= link_to "Back to weight entries", weight_entries_path %>
+</div>

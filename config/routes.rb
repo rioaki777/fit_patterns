@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :weekly_reports, only: [:index, :new, :create, :show, :destroy]
+  resources :weekly_reports, only: [ :index, :new, :create, :show, :destroy ]
   resources :workouts
   resources :weight_entries
   devise_for :users

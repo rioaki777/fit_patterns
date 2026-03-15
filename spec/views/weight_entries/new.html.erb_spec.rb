@@ -14,7 +14,6 @@ RSpec.describe "weight_entries/new", type: :view do
     render
 
     assert_select "form[action=?][method=?]", weight_entries_path, "post" do
-
       assert_select "input[name=?]", "weight_entry[weight_g]"
 
       assert_select "input[name=?]", "weight_entry[body_fat_bp]"

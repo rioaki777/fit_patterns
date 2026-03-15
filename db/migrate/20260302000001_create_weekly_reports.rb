@@ -13,6 +13,6 @@ class CreateWeeklyReports < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :weekly_reports, [:user_id, :period_start, :period_end], unique: true
+    add_index :weekly_reports, [ :user_id, :period_start, :period_end ], unique: true
   end
 end

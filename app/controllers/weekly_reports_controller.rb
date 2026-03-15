@@ -1,7 +1,7 @@
 class WeeklyReportsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_report, only: [:show, :destroy]
-  before_action :authorize_resource!, only: [:show, :destroy]
+  before_action :set_report, only: [ :show, :destroy ]
+  before_action :authorize_resource!, only: [ :show, :destroy ]
 
   def index
     @reports = WeeklyReport.where(user: current_user).order(updated_at: :desc).limit(10)

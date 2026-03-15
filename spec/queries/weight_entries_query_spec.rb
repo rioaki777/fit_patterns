@@ -20,6 +20,6 @@ RSpec.describe WeightEntriesQuery do
 
   it "orders by recorded_on ascending" do
     result = described_class.call(user:, period:)
-    expect(result.map(&:recorded_on)).to eq([Date.new(2026, 2, 10), Date.new(2026, 2, 20)])
+    expect(result.map(&:recorded_on)).to eq([ Date.new(2026, 2, 10), Date.new(2026, 2, 20) ])
   end
 end

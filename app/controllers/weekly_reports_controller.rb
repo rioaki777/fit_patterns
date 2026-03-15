@@ -4,7 +4,7 @@ class WeeklyReportsController < ApplicationController
   before_action :authorize_resource!, only: [ :show, :destroy ]
 
   def index
-    @reports = WeeklyReport.where(user: current_user).order(updated_at: :desc).limit(10)
+    @reports = current_user.weekly_reports.recently_modified
   end
 
   def new

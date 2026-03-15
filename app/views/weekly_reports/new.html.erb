@@ -1,29 +1,29 @@
 <h1>週次レポート生成</h1>
 
-<%= form_with model: @form, url: weekly_reports_path, as: :weekly_report_form do |f| %>
-  <% if @form.errors.any? %>
-    <div class="errors">
-      <ul>
-        <% @form.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+<% if @errors&.any? %>
+  <div class="errors">
+    <ul>
+      <% @errors.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
 
+<%= form_with url: weekly_reports_path do |f| %>
   <div>
     <%= f.label :period_start, "開始日" %>
-    <%= f.date_field :period_start %>
+    <%= f.date_field :period_start, value: @period_start %>
   </div>
 
   <div>
     <%= f.label :period_end, "終了日" %>
-    <%= f.date_field :period_end %>
+    <%= f.date_field :period_end, value: @period_end %>
   </div>
 
   <div>
     <%= f.label :notification_channel, "通知チャネル" %>
-    <%= f.select :notification_channel, [["メール", "email"], ["Slack", "slack"]] %>
+    <%= f.select :notification_channel, [["メール", "email"], ["Slack", "slack"]], selected: @notification_channel %>
   </div>
 
   <%= f.submit "レポートを生成" %>

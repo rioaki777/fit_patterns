@@ -39,47 +39,45 @@ class WeeklyReportsController < ApplicationController
       return
     end
 
-    # インライン クエリ
-    weight_entries = WeightEntry.where(user: current_user)
-                                .where(recorded_on: period_start..period_end)
-                                .order(recorded_on: :asc)
-    workouts = Workout.where(user: current_user)
-                      .where(recorded_on: period_start..period_end)
-                      .order(recorded_on: :asc)
+    # Pub/Sub: 計測と観測のために instrument でラップ
+    ActiveSupport::Notifications.instrument("weekly_report.generate", user_id: current_user.id) do
+      weight_entries = WeightEntry.where(user: current_user)
+                                  .where(recorded_on: period_start..period_end)
+                                  .order(recorded_on: :asc)
+      workouts = Workout.where(user: current_user)
+                        .where(recorded_on: period_start..period_end)
+                        .order(recorded_on: :asc)
 
-    # インライン 集計
-    avg_weight_g = if weight_entries.any?
-      (weight_entries.sum(:weight_g) / weight_entries.count.to_f).round
+      avg_weight_g = if weight_entries.any?
+        (weight_entries.sum(:weight_g) / weight_entries.count.to_f).round
+      end
+
+      with_fat = weight_entries.where.not(body_fat_bp: nil)
+      avg_body_fat_bp = if with_fat.any?
+        (with_fat.sum(:body_fat_bp) / with_fat.count.to_f).round
+      end
+
+      total_calories_kcal = workouts.sum(:calories_kcal)
+      total_workout_min   = workouts.sum(:duration_min)
+
+      @report = WeeklyReport.create!(
+        user:               current_user,
+        period_start:,
+        period_end:,
+        avg_weight_g:,
+        avg_body_fat_bp:,
+        total_calories_kcal:,
+        total_workout_min:
+      )
+
+      AuditLog.create!(
+        auditable: @report,
+        event:     "weekly_report_created",
+        user_id:   current_user.id,
+        payload:   { period_start:, period_end:, notified_at: nil }
+      )
     end
 
-    with_fat = weight_entries.where.not(body_fat_bp: nil)
-    avg_body_fat_bp = if with_fat.any?
-      (with_fat.sum(:body_fat_bp) / with_fat.count.to_f).round
-    end
-
-    total_calories_kcal = workouts.sum(:calories_kcal)
-    total_workout_min   = workouts.sum(:duration_min)
-
-    # 保存
-    @report = WeeklyReport.create!(
-      user:               current_user,
-      period_start:,
-      period_end:,
-      avg_weight_g:,
-      avg_body_fat_bp:,
-      total_calories_kcal:,
-      total_workout_min:
-    )
-
-    # 手動 監査ログ
-    AuditLog.create!(
-      auditable: @report,
-      event:     "weekly_report_created",
-      user_id:   current_user.id,
-      payload:   { period_start:, period_end:, notified_at: nil }
-    )
-
-    # インライン 同期通知
     case channel
     when "email"
       WeeklyReportMailer.report_ready(@report).deliver_now
@@ -88,6 +86,10 @@ class WeeklyReportsController < ApplicationController
     end
 
     @report.update!(notified_at: Time.current)
+
+    # Pub/Sub: 通知完了イベントを発行
+    ActiveSupport::Notifications.instrument("weekly_report.notified",
+      report_id: @report.id, channel:)
 
     redirect_to weekly_report_path(@report), notice: "レポートを生成しました"
   rescue ActiveRecord::RecordInvalid => e

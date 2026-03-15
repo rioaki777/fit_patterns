@@ -8,7 +8,7 @@ class WeeklyReport < ApplicationRecord
   scope :recently_modified, -> { order(updated_at: :desc).limit(10) }
   scope :created_this_week, -> { where(created_at: 1.week.ago..) }
 
-  after_commit :write_audit_log, on: [:create, :update]
+  after_commit :write_audit_log, on: [ :create, :update ]
 
   def formatted_weight
     avg_weight_g ? "#{avg_weight_g / 1000.0} kg" : "データなし"

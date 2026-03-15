@@ -24,6 +24,7 @@ class WeeklyReportsController < ApplicationController
     @notification_channel = channel
     @errors = []
 
+    # インライン バリデーション
     @errors << "開始日を入力してください" if period_start.nil?
     @errors << "終了日を入力してください" if period_end.nil?
 
@@ -38,6 +39,7 @@ class WeeklyReportsController < ApplicationController
       return
     end
 
+    # インライン クエリ
     weight_entries = WeightEntry.where(user: current_user)
                                 .where(recorded_on: period_start..period_end)
                                 .order(recorded_on: :asc)
@@ -45,6 +47,7 @@ class WeeklyReportsController < ApplicationController
                       .where(recorded_on: period_start..period_end)
                       .order(recorded_on: :asc)
 
+    # インライン 集計
     avg_weight_g = if weight_entries.any?
       (weight_entries.sum(:weight_g) / weight_entries.count.to_f).round
     end
@@ -68,6 +71,7 @@ class WeeklyReportsController < ApplicationController
       total_workout_min:
     )
 
+    # インライン 同期通知
     case channel
     when "email"
       WeeklyReportMailer.report_ready(@report).deliver_now

@@ -8,8 +8,8 @@
   <ul>
     <% @reports.each do |report| %>
       <li>
-        <%= link_to report.formatted_period, weekly_report_path(report) %>
-        <span><%= report.notification_label %></span>
+        <%= render WeeklySummaryCardComponent.new(report: report) %>
+        <%= link_to "詳細", weekly_report_path(report) %>
       </li>
     <% end %>
   </ul>

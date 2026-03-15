@@ -62,7 +62,7 @@ class GenerateWeeklyReportCommand
     report.update!(notified_at: Time.current)
     Result.new(success?: true, report:, errors: nil)
   rescue => e
-    Result.new(success?: false, report: nil, errors: [e.message])
+    Result.new(success?: false, report: nil, errors: [ e.message ])
   end
 
   private

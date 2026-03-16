@@ -4,6 +4,7 @@ class WeeklyReport < ApplicationRecord
 
   validates :period_start, :period_end, presence: true
   validates :period_start, uniqueness: { scope: :user_id }
+  validates_with SafePeriodValidator
 
   scope :recently_modified, -> { order(updated_at: :desc).limit(10) }
   scope :created_this_week, -> { where(created_at: 1.week.ago..) }

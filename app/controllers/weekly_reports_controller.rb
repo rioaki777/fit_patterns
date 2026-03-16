@@ -8,36 +8,27 @@ class WeeklyReportsController < ApplicationController
   end
 
   def new
-    @period_start = 1.week.ago.to_date
-    @period_end   = Date.today
-    @notification_channel = "email"
-    @errors = []
+    @form = WeeklyReportForm.new(
+      period_start: 1.week.ago.to_date,
+      period_end: Date.today
+    )
   end
 
   def create
-    period_start = Date.parse(params[:period_start].to_s) rescue nil
-    period_end   = Date.parse(params[:period_end].to_s) rescue nil
-    channel      = params[:notification_channel].presence || "email"
+    @form = WeeklyReportForm.new(
+      period_start: params[:period_start],
+      period_end:   params[:period_end],
+      notification_channel: params[:notification_channel]
+    )
 
-    @period_start = period_start
-    @period_end   = period_end
-    @notification_channel = channel
-    @errors = []
-
-    # インライン バリデーション
-    @errors << "開始日を入力してください" if period_start.nil?
-    @errors << "終了日を入力してください" if period_end.nil?
-
-    if period_start && period_end
-      @errors << "開始日は終了日より前の日付を指定してください" if period_start > period_end
-      @errors << "終了日は未来日を指定できません" if period_end > Date.current
-      @errors << "期間は31日以内にしてください" if (period_end - period_start).to_i >= 31
-    end
-
-    if @errors.any?
+    unless @form.valid?
       render :new, status: :unprocessable_entity
       return
     end
+
+    period_start = @form.period_start
+    period_end   = @form.period_end
+    channel      = @form.notification_channel
 
     # インライン クエリ
     weight_entries = WeightEntry.where(user: current_user)
@@ -91,7 +82,7 @@ class WeeklyReportsController < ApplicationController
 
     redirect_to weekly_report_path(@report), notice: "レポートを生成しました"
   rescue ActiveRecord::RecordInvalid => e
-    @errors = e.record.errors.full_messages
+    @form.errors.merge!(e.record.errors)
     render :new, status: :unprocessable_entity
   end
 

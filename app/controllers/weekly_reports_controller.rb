@@ -24,7 +24,6 @@ class WeeklyReportsController < ApplicationController
     @notification_channel = channel
     @errors = []
 
-    # インライン バリデーション
     @errors << "開始日を入力してください" if period_start.nil?
     @errors << "終了日を入力してください" if period_end.nil?
 
@@ -39,13 +38,9 @@ class WeeklyReportsController < ApplicationController
       return
     end
 
-    # インライン クエリ
-    weight_entries = WeightEntry.where(user: current_user)
-                                .where(recorded_on: period_start..period_end)
-                                .order(recorded_on: :asc)
-    workouts = Workout.where(user: current_user)
-                      .where(recorded_on: period_start..period_end)
-                      .order(recorded_on: :asc)
+    # Query Object を使ってデータ取得
+    weight_entries = WeightEntriesQuery.call(user: current_user, start_date: period_start, end_date: period_end)
+    workouts       = WorkoutsQuery.call(user: current_user, start_date: period_start, end_date: period_end)
 
     # インライン 集計
     avg_weight_g = if weight_entries.any?

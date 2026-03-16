@@ -79,14 +79,8 @@ class WeeklyReportsController < ApplicationController
       payload:   { period_start:, period_end:, notified_at: nil }
     )
 
-    # インライン 同期通知
-    case channel
-    when "email"
-      WeeklyReportMailer.report_ready(@report).deliver_now
-    when "slack"
-      Rails.logger.info "[Slack] Weekly report ready: #{@report.id}"
-    end
-
+    # Adapter パターンで通知チャネルを切り替え
+    NotificationAdapter.for(channel).deliver(report: @report)
     @report.update!(notified_at: Time.current)
 
     redirect_to weekly_report_path(@report), notice: "レポートを生成しました"

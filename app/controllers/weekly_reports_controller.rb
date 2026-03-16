@@ -39,36 +39,15 @@ class WeeklyReportsController < ApplicationController
       return
     end
 
-    # インライン クエリ
-    weight_entries = WeightEntry.where(user: current_user)
-                                .where(recorded_on: period_start..period_end)
-                                .order(recorded_on: :asc)
-    workouts = Workout.where(user: current_user)
-                      .where(recorded_on: period_start..period_end)
-                      .order(recorded_on: :asc)
-
-    # インライン 集計
-    avg_weight_g = if weight_entries.any?
-      (weight_entries.sum(:weight_g) / weight_entries.count.to_f).round
-    end
-
-    with_fat = weight_entries.where.not(body_fat_bp: nil)
-    avg_body_fat_bp = if with_fat.any?
-      (with_fat.sum(:body_fat_bp) / with_fat.count.to_f).round
-    end
-
-    total_calories_kcal = workouts.sum(:calories_kcal)
-    total_workout_min   = workouts.sum(:duration_min)
+    # Service Object で集計処理を委譲
+    stats = WeeklyReport::Generate.call(user: current_user, start_date: period_start, end_date: period_end)
 
     # 保存
     @report = WeeklyReport.create!(
-      user:               current_user,
+      user:         current_user,
       period_start:,
       period_end:,
-      avg_weight_g:,
-      avg_body_fat_bp:,
-      total_calories_kcal:,
-      total_workout_min:
+      **stats
     )
 
     # 手動 監査ログ

@@ -1,12 +1,12 @@
 <h1>週次レポート</h1>
 
 <div class="weekly-summary-card">
-  <h3><%= @report.formatted_period %></h3>
+  <h3><%= @presenter.formatted_period %></h3>
   <dl>
-    <dt>平均体重</dt><dd><%= @report.formatted_weight %></dd>
-    <dt>平均体脂肪率</dt><dd><%= @report.formatted_fat %></dd>
-    <dt>総カロリー</dt><dd><%= @report.formatted_calories %></dd>
-    <dt>通知</dt><dd><%= @report.notification_label %></dd>
+    <dt>平均体重</dt><dd><%= @presenter.formatted_weight %></dd>
+    <dt>平均体脂肪率</dt><dd><%= @presenter.formatted_fat %></dd>
+    <dt>総カロリー</dt><dd><%= @presenter.formatted_calories %></dd>
+    <dt>通知</dt><dd><%= @presenter.notification_label %></dd>
   </dl>
 </div>
 

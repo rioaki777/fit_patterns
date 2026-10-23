@@ -96,6 +96,8 @@ class WeeklyReportsController < ApplicationController
   end
 
   def show
+    # Presenter でビューロジックを分離
+    @presenter = WeeklyReportPresenter.new(@report)
   end
 
   def destroy
